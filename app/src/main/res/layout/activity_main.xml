@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Toolbar com o nome do contato -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarIndividualChat"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/gray"
+        android:titleTextColor="@android:color/white" />
+
+    <!-- Linha cinza -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/normal" />
+
+    <ScrollView
+        android:id="@+id/scrollViewMessages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/degrade"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/message_space"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="bottom">
+
+            <!-- Mensagens adicionadas dinamicamente aqui -->
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Layout para a entrada de mensagem -->
+    <LinearLayout
+        android:id="@+id/layoutMessageInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/gray"
+        android:padding="8dp">
+
+        <!-- Botão de anexar imagem/vídeo -->
+        <ImageButton
+            android:id="@+id/imageButtonAttach"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/anexos"
+            android:background="@drawable/anexo_background"
+            android:contentDescription="Anexar" />
+
+        <!-- Campo de entrada de texto da mensagem -->
+        <EditText
+            android:id="@+id/editTextMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:hint="Digite sua mensagem..."
+            android:textColorHint="@color/white"
+            android:textColor="@color/normal"
+            android:maxLines="3"
+            android:padding="8dp"
+            android:background="@drawable/edittext_border" />
+
+        <!-- Botão de enviar mensagem -->
+        <ImageButton
+            android:id="@+id/imageButtonSend"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/env"
+            android:background="@drawable/anexo_background"
+            android:contentDescription="Enviar"
+            android:padding="8dp" />
+    </LinearLayout>
+
+</LinearLayout>
