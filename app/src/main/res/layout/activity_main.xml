@@ -26,16 +26,16 @@
         android:background="@drawable/degrade"
         android:fillViewport="true">
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/message_space"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
             <!-- Mensagens adicionadas dinamicamente aqui -->
 
-        </LinearLayout>
+            <!-- FrameLayout para o modal -->
+
+        </RelativeLayout>
 
     </ScrollView>
 

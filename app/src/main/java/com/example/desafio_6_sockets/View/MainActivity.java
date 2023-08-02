@@ -8,25 +8,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.ImageReader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.desafio_6_sockets.Controller.ChatClient;
 import com.example.desafio_6_sockets.R;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 
 //==========================================================================< Main >=================================================================================//
 
@@ -63,11 +71,14 @@ public class MainActivity extends AppCompatActivity {
                 editTextMessage.setText("");
                 socketClient.sendMessage(message);
 
-                LinearLayout layoutParent = findViewById(R.id.message_space);
+                RelativeLayout layoutParent = findViewById(R.id.message_space);
                 View layoutChild = getLayoutInflater().inflate(R.layout.inflate_own_msg, null);
                 TextView textViewMessage = layoutChild.findViewById(R.id.txt_message);
                 textViewMessage.setText(message);
                 layoutParent.addView(layoutChild);
+
+                ScrollView scrollView = findViewById(R.id.scrollViewMessages);
+                scrollView.fullScroll(View.FOCUS_DOWN);
             }
         });
 
@@ -81,8 +92,16 @@ public class MainActivity extends AppCompatActivity {
 
                             // Verifica se o arquivo selecionado é uma imagem
                             if (selectedFileUri != null && getContentResolver().getType(selectedFileUri).startsWith("image/")) {
+                                // mostrar a imagem para quem está enviando
+                                RelativeLayout layoutParent = findViewById(R.id.message_space);
+                                View layoutChild = getLayoutInflater().inflate(R.layout.inflate_img_own, null);
+                                ImageView imageView = layoutChild.findViewById(R.id.img_inflate_own);
+                                imageView.setImageURI(selectedFileUri);
+                                layoutParent.addView(layoutChild);
+
                                 try {
                                     String imageBase64 = convertFileToBase64(selectedFileUri);
+                                    Log.i(TAG, String.valueOf(imageBase64));
                                     socketClient.sendImage(imageBase64);
                                 } catch (IOException e) {
                                     e.printStackTrace();
@@ -117,44 +136,60 @@ public class MainActivity extends AppCompatActivity {
         imageButtonAttach.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                View customLayout = getLayoutInflater().inflate(R.layout.alert_dialog_custom, null);
-                builder.setView(customLayout);
+                // Inflar o layout do Modal
+                View modalLayout = getLayoutInflater().inflate(R.layout.alert_dialog_custom, null);
 
-                TextView titleTextView = customLayout.findViewById(R.id.dialog_title);
-                titleTextView.setText("Escolha uma opção:");
+                // Criar o Modal
+                BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(MainActivity.this);
+                bottomSheetDialog.setContentView(modalLayout);
 
+                // Obter o FrameLayout do activity_main.xml
 
-                // Botão "Galeria"
-                LinearLayout buttonGaleria = customLayout.findViewById(R.id.button_galeria);
+                // Remover o modalLayout de seu pai atual, se ele já tiver um pai
+                if (modalLayout.getParent() != null) {
+                    ((ViewGroup) modalLayout.getParent()).removeView(modalLayout);
+                }
+
+                //frameLayout.addView(modalLayout); // Adicionar o layout do modal ao FrameLayout
+
+                bottomSheetDialog.show();
+
+                // Obter o botão de fechar do layout do modal
+                ImageView buttonFechar = modalLayout.findViewById(R.id.button_fechar);
+                buttonFechar.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        bottomSheetDialog.dismiss(); // Fechar o modal
+                    }
+                });
+
+                // Configurar os botões no layout do Modal
+                LinearLayout buttonGaleria = modalLayout.findViewById(R.id.button_galeria);
                 buttonGaleria.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        bottomSheetDialog.dismiss(); // Fechar o Modal antes de realizar a ação
                         openGalleryIMG();
                     }
                 });
 
-
-                // Botão "Enviar Arquivo"
-                LinearLayout buttonEnviarArquivo = customLayout.findViewById(R.id.button_enviar_arquivo);
+                LinearLayout buttonEnviarArquivo = modalLayout.findViewById(R.id.button_enviar_arquivo);
                 buttonEnviarArquivo.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        bottomSheetDialog.dismiss(); // Fechar o Modal antes de realizar a ação
                         openGalleryFiles();
                     }
                 });
 
-
-                // Botão "Enviar Áudio"
-                LinearLayout buttonEnviarAudio = customLayout.findViewById(R.id.button_enviar_audio);
+                LinearLayout buttonEnviarAudio = modalLayout.findViewById(R.id.button_enviar_audio);
                 buttonEnviarAudio.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        bottomSheetDialog.dismiss(); // Fechar o Modal antes de realizar a ação
                         openGalleryAudio();
                     }
                 });
-
-                builder.create().show();
             }
         });
     }
@@ -220,10 +255,26 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                LinearLayout layoutParent = findViewById(R.id.message_space);
+                RelativeLayout layoutParent = findViewById(R.id.message_space);
                 View layoutChild = getLayoutInflater().inflate(R.layout.inflate_other_msg, null);
                 TextView textViewMessage = layoutChild.findViewById(R.id.txt_message);
                 textViewMessage.setText(message);
+                layoutParent.addView(layoutChild);
+
+                ScrollView scrollView = findViewById(R.id.scrollViewMessages);
+                scrollView.fullScroll(View.FOCUS_DOWN);
+            }
+        });
+    }
+
+    public void showReceiveImage(Uri UriImagem) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                RelativeLayout layoutParent = findViewById(R.id.message_space);
+                View layoutChild = getLayoutInflater().inflate(R.layout.inflate_img_own, null);
+                ImageView imageView = layoutChild.findViewById(R.id.img_inflate_other);
+                imageView.setImageURI(UriImagem);
                 layoutParent.addView(layoutChild);
             }
         });

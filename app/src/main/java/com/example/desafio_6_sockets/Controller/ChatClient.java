@@ -1,5 +1,8 @@
 package com.example.desafio_6_sockets.Controller;
 
+import android.net.Uri;
+import android.nfc.Tag;
+import android.util.Base64;
 import android.util.Log;
 
 import com.example.desafio_6_sockets.View.MainActivity;
@@ -56,13 +59,22 @@ public class ChatClient extends Thread {
             public void run() {
                 while (true){
                     try {
-                        //BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
                         String serverResponse = in.readLine();
-                        Log.i(TAG, "Mensagem recebida do servidor: " + serverResponse);
-                        if (serverResponse.startsWith("image")){
-                            
+                        if (serverResponse.startsWith("image")) {
+                            String codeFile = "";
+
+                            while (!serverResponse.endsWith("END_OF_IMAGE")){
+                                serverResponse = in.readLine();
+                                codeFile += serverResponse + "\n";
+                            }
+                            Uri decodedFile = decodeBase64ToUri(codeFile);
+                            Log.i(TAG, "codificando a imagem: " + decodedFile);
+
+                            mainActivity.showReceiveImage(decodedFile);
+                        } else {
+                            mainActivity.showReceiveMessage(serverResponse);
                         }
-                        mainActivity.showReceiveMessage(serverResponse);
+
                     } catch (IOException e){
                         throw new RuntimeException(e);
                     }
@@ -98,7 +110,7 @@ public class ChatClient extends Thread {
             @Override
             public void run() {
                 try {
-                    out.write("image " + base64Image);
+                    out.write("image " + base64Image + " END_OF_IMAGE");
                     out.newLine();
                     out.flush();
                 } catch (IOException e) {
@@ -155,6 +167,25 @@ public class ChatClient extends Thread {
         } catch (IOException e){
             Log.e(TAG, e.getMessage());
         }
+    }
+
+    public Uri decodeBase64ToUri (String fileBase64) {
+
+        String type = "";
+        if (fileBase64.startsWith("image")) {
+            type = "image";
+            fileBase64 = fileBase64.replace("image ", "");
+            fileBase64 = fileBase64.replace("END_OF_IMAGE", "");
+        }
+
+        Log.i(TAG, "oi: " + fileBase64);
+
+
+        String fullImage = "data:image/png;base64," + fileBase64;
+        Uri imageUri = Uri.parse(fullImage);
+        Log.i(TAG, "return: " + imageUri);
+
+        return imageUri;
     }
 }
 

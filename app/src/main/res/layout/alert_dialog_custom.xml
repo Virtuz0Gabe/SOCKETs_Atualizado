@@ -8,14 +8,32 @@
     android:padding="16dp">
 
     <!-- Título personalizado -->
-    <TextView
-        android:id="@+id/dialog_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textColor="@android:color/white"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:orientation="horizontal"
+        android:onClick="onFecharCick"
+        android:gravity="center">
+
+        <!-- Título personalizado -->
+        <TextView
+            android:id="@+id/dialog_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:text="Escolha uma opção:"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- Botão de fechar -->
+        <ImageView
+            android:id="@+id/button_fechar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="140dp"
+            />
+
+    </LinearLayout>
 
     <!-- Botões personalizados como imagens com legendas -->
     <LinearLayout
