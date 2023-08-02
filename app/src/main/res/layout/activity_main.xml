@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -31,8 +30,8 @@
             android:id="@+id/message_space"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_gravity="bottom">
+            android:layout_gravity="bottom"
+            android:orientation="vertical">
 
             <!-- Mensagens adicionadas dinamicamente aqui -->
 
@@ -45,8 +44,8 @@
         android:id="@+id/layoutMessageInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:background="@color/gray"
+        android:orientation="horizontal"
         android:padding="8dp">
 
         <!-- Botão de anexar imagem/vídeo -->
@@ -54,34 +53,34 @@
             android:id="@+id/imageButtonAttach"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/anexos"
             android:background="@drawable/anexo_background"
-            android:contentDescription="Anexar" />
+            android:contentDescription="Anexar"
+            android:src="@drawable/anexos" />
 
         <!-- Campo de entrada de texto da mensagem -->
         <EditText
             android:id="@+id/editTextMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/edittext_border"
             android:hint="Digite sua mensagem..."
-            android:textColorHint="@color/white"
-            android:textColor="@color/normal"
             android:maxLines="3"
             android:padding="8dp"
-            android:background="@drawable/edittext_border" />
+            android:textColor="@color/normal"
+            android:textColorHint="@color/white" />
 
         <!-- Botão de enviar mensagem -->
         <ImageButton
             android:id="@+id/imageButtonSend"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/env"
             android:background="@drawable/anexo_background"
             android:contentDescription="Enviar"
-            android:padding="8dp" />
+            android:padding="8dp"
+            android:src="@drawable/env" />
     </LinearLayout>
 
 </LinearLayout>

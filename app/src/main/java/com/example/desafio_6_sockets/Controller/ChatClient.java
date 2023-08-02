@@ -13,6 +13,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+    //===============================================================================< Class >=================================================================================//
+
 public class ChatClient extends Thread {
     //private static final String SERVER_IP = "192.168.0.108"; // Endereço IP do servidor de casa:
     private static final String SERVER_IP = "192.168.7.214"; // Endereço de IP do servidor da Imply:
@@ -22,6 +24,8 @@ public class ChatClient extends Thread {
     private BufferedReader in;
     private Socket clientSocket;
     private MainActivity mainActivity;
+
+    //================================================================================< Main >==================================================================================//
 
     public ChatClient (MainActivity mainActivity) {
         this.mainActivity = mainActivity;
@@ -44,6 +48,8 @@ public class ChatClient extends Thread {
         }
     }
 
+    //====================================================================< Receber Mensagem >=================================================================================//
+
     public void receiveMessageLoop (Socket clientSocket) {
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -65,6 +71,9 @@ public class ChatClient extends Thread {
         });
         thread.start();
     }
+
+    //=====================================================================< Enviar Mensagem >=================================================================================//
+
     public void sendMessage(String message) {
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -82,6 +91,8 @@ public class ChatClient extends Thread {
         thread.start();
     }
 
+    //=======================================================================< Enviar Imagem >=================================================================================//
+
     public void sendImage(String base64Image){
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -97,6 +108,8 @@ public class ChatClient extends Thread {
         });
         thread.start();
     }
+
+    //======================================================================< Enviar Arquivo >=================================================================================//
 
     public void sendFile(String base64Image){
         Thread thread = new Thread(new Runnable() {
@@ -114,6 +127,8 @@ public class ChatClient extends Thread {
         thread.start();
     }
 
+    //========================================================================< Enviar Audio >=================================================================================//
+
     public void sendAudio(String base64Image){
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -130,6 +145,8 @@ public class ChatClient extends Thread {
         thread.start();
     }
 
+    //===============================================================================< Close >=================================================================================//
+
     public void close(){
         try {
             out.close();
@@ -141,4 +158,4 @@ public class ChatClient extends Thread {
     }
 }
 
-
+//=====================================================================================< Fim >=================================================================================//

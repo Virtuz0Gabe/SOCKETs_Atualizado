@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp"
     android:background="@drawable/degrade"
-    android:gravity="center">
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <!-- Título personalizado -->
     <TextView
@@ -13,28 +13,28 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"/>
+        android:textStyle="bold" />
 
     <!-- Botões personalizados como imagens com legendas -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginTop="16dp"
         android:background="@drawable/edittext_border"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <!-- Botão 1 - Galeria -->
         <LinearLayout
             android:id="@+id/button_galeria"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:gravity="center"
-            android:padding="20dp"
-            android:onClick="onGaleriaClick">
+            android:onClick="onGaleriaClick"
+            android:orientation="vertical"
+            android:padding="20dp">
 
             <ImageView
                 android:layout_width="64dp"
@@ -47,8 +47,8 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
                 android:text="Galeria"
-                android:textStyle="bold"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -57,10 +57,10 @@
             android:id="@+id/button_enviar_arquivo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:gravity="center"
-            android:padding="20dp"
-            android:onClick="onEnviarArquivoClick">
+            android:onClick="onEnviarArquivoClick"
+            android:orientation="vertical"
+            android:padding="20dp">
 
             <ImageView
                 android:layout_width="64dp"
@@ -72,9 +72,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
-                android:textStyle="bold"
                 android:text="Arquivo"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -83,10 +83,10 @@
             android:id="@+id/button_enviar_audio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:gravity="center"
-            android:padding="20dp"
-            android:onClick="onEnviarAudioClick">
+            android:onClick="onEnviarAudioClick"
+            android:orientation="vertical"
+            android:padding="20dp">
 
             <ImageView
                 android:layout_width="64dp"
@@ -98,12 +98,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
-                android:textStyle="bold"
                 android:text="Áudio"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
     </LinearLayout>
 
 </LinearLayout>
+

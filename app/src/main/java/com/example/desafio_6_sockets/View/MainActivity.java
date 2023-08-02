@@ -28,16 +28,18 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 
+//==========================================================================< Main >=================================================================================//
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Gabes";
     private ChatClient chatClient;
-
     ImageButton imageButtonSend;
     EditText editTextMessage;
     ImageButton imageButtonAttach;
     private ActivityResultLauncher<Intent> galleryLauncher;
-
     private ChatClient socketClient;
+
+    //====================================================================< On Create >=================================================================================//
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
         // Inicia a conexão com o servidor Socket quando a Activity for criada
         socketClient = new ChatClient(this);
         socketClient.start();
+
+        //==========================================================< Enviar Mensagem Layout >=================================================================================//
 
         imageButtonSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    //=====================================================================< Verificar Tipo >=================================================================================//
 
         galleryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -107,8 +112,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        //================================================================< AnexarBTN OnClick >=================================================================================//
 
-        // Listener de clique para o botão de anexo
         imageButtonAttach.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -129,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+
                 // Botão "Enviar Arquivo"
                 LinearLayout buttonEnviarArquivo = customLayout.findViewById(R.id.button_enviar_arquivo);
                 buttonEnviarArquivo.setOnClickListener(new View.OnClickListener() {
@@ -137,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
                         openGalleryFiles();
                     }
                 });
+
 
                 // Botão "Enviar Áudio"
                 LinearLayout buttonEnviarAudio = customLayout.findViewById(R.id.button_enviar_audio);
@@ -152,20 +159,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void onGaleriaClick(View view) {
-        openGalleryAudio();
-    }
+    //public void onGaleriaClick(View view) {openGalleryAudio();}
+    //public void onEnviarArquivoClick(View view) {openGalleryAudio();}
+    //public void onEnviarAudioClick(View view) {openGalleryAudio();}
 
-    public void onEnviarArquivoClick(View view) {
-        openGalleryAudio();
-    }
+    //===============================================================< Abrir Galeria Imagens>=================================================================================//
 
-    public void onEnviarAudioClick(View view) {
-        openGalleryAudio();
-    }
-
-
-    // Método para abrir a galeria de imagens
     private void openGalleryIMG() {
         Log.d(TAG, "Botão de anexo clicado. Abrindo a galeria de imagens.");
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -173,17 +172,19 @@ public class MainActivity extends AppCompatActivity {
         galleryLauncher.launch(intent);
     }
 
+    //==============================================================< Abrir Galeria Arquivos >=================================================================================//
 
     // Método para abrir a galeria de arquivos
     private void openGalleryFiles() {
         Log.d(TAG, "Botão de anexo de arquivos clicado. Abrindo a galeria de arquivos.");
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*"); // Define o tipo de arquivo (todos)
+        intent.setType("application/*"); // Define o tipo de arquivo (todos)
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         // Inicie a atividade esperando um resultado usando o launcher para ActivityResult
         galleryLauncher.launch(intent);
     }
 
+    //================================================================< Abrir Galeria Audios >=================================================================================//
 
     // Método para abrir a galeria de áudios
     private void openGalleryAudio() {
@@ -195,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
         galleryLauncher.launch(intent);
     }
 
+    //===================================================================< Convert BASE64 >=================================================================================//
 
     private String convertFileToBase64(Uri fileUri) throws IOException {
         InputStream inputStream = getContentResolver().openInputStream(fileUri);
@@ -203,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
         return base64File;
     }
 
+    //========================================================================< OnStop >=================================================================================//
 
     @Override
     protected void onStop() {
@@ -211,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
         //socketClient.close();
     }
 
+    //====================================================================< Mostrar Mensagem >=================================================================================//
 
     public void showReceiveMessage(String message) {
         runOnUiThread(new Runnable() {
@@ -225,3 +229,5 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 }
+
+//==============================================================================< Fim >=================================================================================//
