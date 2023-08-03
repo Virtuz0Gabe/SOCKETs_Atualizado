@@ -8,12 +8,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.ImageReader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -44,8 +47,10 @@ public class MainActivity extends AppCompatActivity {
     ImageButton imageButtonSend;
     EditText editTextMessage;
     ImageButton imageButtonAttach;
+    androidx.appcompat.widget.Toolbar toolbarIndividualChat;
     private ActivityResultLauncher<Intent> galleryLauncher;
     private ChatClient socketClient;
+    private AlertDialog alertDialog;
 
     //====================================================================< On Create >=================================================================================//
 
@@ -54,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        toolbarIndividualChat = findViewById(R.id.toolbarIndividualChat);
         imageButtonSend = findViewById(R.id.imageButtonSend);
         editTextMessage = findViewById(R.id.editTextMessage);
         imageButtonAttach = findViewById(R.id.imageButtonAttach);
@@ -61,6 +67,13 @@ public class MainActivity extends AppCompatActivity {
         // Inicia a conexão com o servidor Socket quando a Activity for criada
         socketClient = new ChatClient(this);
         socketClient.start();
+
+        imageButtonAttach.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showAttachDialog();
+            }
+        });
 
         //==========================================================< Enviar Mensagem Layout >=================================================================================//
 
@@ -71,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 editTextMessage.setText("");
                 socketClient.sendMessage(message);
 
-                RelativeLayout layoutParent = findViewById(R.id.message_space);
+                LinearLayout layoutParent = findViewById(R.id.message_space);
                 View layoutChild = getLayoutInflater().inflate(R.layout.inflate_own_msg, null);
                 TextView textViewMessage = layoutChild.findViewById(R.id.txt_message);
                 textViewMessage.setText(message);
@@ -82,121 +95,92 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    //=====================================================================< Verificar Tipo >=================================================================================//
-
+        //=====================================================================< Verificar Tipo >=================================================================================//
         galleryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        if (result.getData() != null) {
-                            Uri selectedFileUri = result.getData().getData();
+        result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                if (result.getData() != null) {
+                    Uri selectedFileUri = result.getData().getData();
 
-                            // Verifica se o arquivo selecionado é uma imagem
-                            if (selectedFileUri != null && getContentResolver().getType(selectedFileUri).startsWith("image/")) {
-                                // mostrar a imagem para quem está enviando
-                                RelativeLayout layoutParent = findViewById(R.id.message_space);
-                                View layoutChild = getLayoutInflater().inflate(R.layout.inflate_img_own, null);
-                                ImageView imageView = layoutChild.findViewById(R.id.img_inflate_own);
-                                imageView.setImageURI(selectedFileUri);
-                                layoutParent.addView(layoutChild);
+                    // Verifica se o arquivo selecionado é uma imagem
+                    if (selectedFileUri != null && getContentResolver().getType(selectedFileUri).startsWith("image/")) {
+                        // mostrar a imagem para quem está enviando
+                        LinearLayout layoutParent = findViewById(R.id.message_space);
+                        View layoutChild = getLayoutInflater().inflate(R.layout.inflate_img_own, null);
+                        ImageView imageView = layoutChild.findViewById(R.id.img_inflate_own);
+                        imageView.setImageURI(selectedFileUri);
+                        layoutParent.addView(layoutChild);
 
-                                try {
-                                    String imageBase64 = convertFileToBase64(selectedFileUri);
-                                    Log.i(TAG, String.valueOf(imageBase64));
-                                    socketClient.sendImage(imageBase64);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            // Verifica se o arquivo selecionado é um arquivo
-                            if (selectedFileUri != null && getContentResolver().getType(selectedFileUri).startsWith("application/")) {
-                                try {
-                                    String fileBase64 = convertFileToBase64(selectedFileUri);
-                                    socketClient.sendFile(fileBase64);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            // Verifica se o arquivo selecionado é um áudio
-                            if (selectedFileUri != null && getContentResolver().getType(selectedFileUri).startsWith("audio/")) {
-                                try {
-                                    String audioBase64 = convertFileToBase64(selectedFileUri);
-                                    socketClient.sendAudio(audioBase64);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
+                        try {
+                            byte[] fileData = convertFileToByteArray(selectedFileUri);
+                            socketClient.sendImage(fileData);
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
-                });
 
-        //================================================================< AnexarBTN OnClick >=================================================================================//
+                    // Verifica se o arquivo selecionado é um arquivo
+                    if (selectedFileUri != null && getContentResolver().getType(selectedFileUri).startsWith("application/")) {
+                        try {
+                            byte [] fileBase64 = convertFileToByteArray(selectedFileUri);
+                            //socketClient.sendFile(fileBase64);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
 
-        imageButtonAttach.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Inflar o layout do Modal
-                View modalLayout = getLayoutInflater().inflate(R.layout.alert_dialog_custom, null);
-
-                // Criar o Modal
-                BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(MainActivity.this);
-                bottomSheetDialog.setContentView(modalLayout);
-
-                // Obter o FrameLayout do activity_main.xml
-
-                // Remover o modalLayout de seu pai atual, se ele já tiver um pai
-                if (modalLayout.getParent() != null) {
-                    ((ViewGroup) modalLayout.getParent()).removeView(modalLayout);
+                    // Verifica se o arquivo selecionado é um áudio
+                    if (selectedFileUri != null && getContentResolver().getType(selectedFileUri).startsWith("audio/")) {
+                        try {
+                            byte [] audioBase64 = convertFileToByteArray(selectedFileUri);
+                            //socketClient.sendAudio(audioBase64);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
-
-                //frameLayout.addView(modalLayout); // Adicionar o layout do modal ao FrameLayout
-
-                bottomSheetDialog.show();
-
-                // Obter o botão de fechar do layout do modal
-                ImageView buttonFechar = modalLayout.findViewById(R.id.button_fechar);
-                buttonFechar.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        bottomSheetDialog.dismiss(); // Fechar o modal
-                    }
-                });
-
-                // Configurar os botões no layout do Modal
-                LinearLayout buttonGaleria = modalLayout.findViewById(R.id.button_galeria);
-                buttonGaleria.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        bottomSheetDialog.dismiss(); // Fechar o Modal antes de realizar a ação
-                        openGalleryIMG();
-                    }
-                });
-
-                LinearLayout buttonEnviarArquivo = modalLayout.findViewById(R.id.button_enviar_arquivo);
-                buttonEnviarArquivo.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        bottomSheetDialog.dismiss(); // Fechar o Modal antes de realizar a ação
-                        openGalleryFiles();
-                    }
-                });
-
-                LinearLayout buttonEnviarAudio = modalLayout.findViewById(R.id.button_enviar_audio);
-                buttonEnviarAudio.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        bottomSheetDialog.dismiss(); // Fechar o Modal antes de realizar a ação
-                        openGalleryAudio();
-                    }
-                });
             }
         });
     }
 
-    //public void onGaleriaClick(View view) {openGalleryAudio();}
-    //public void onEnviarArquivoClick(View view) {openGalleryAudio();}
-    //public void onEnviarAudioClick(View view) {openGalleryAudio();}
+        //================================================================< AnexarBTN OnClick >=================================================================================//
+
+        private void showAttachDialog() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            View customLayout = LayoutInflater.from(MainActivity.this).inflate(R.layout.alert_dialog_custom, null);
+            builder.setView(customLayout);
+
+            LinearLayout buttonGaleria = customLayout.findViewById(R.id.button_galeria);
+            buttonGaleria.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    openGalleryIMG();
+                    alertDialog.dismiss();
+                }
+            });
+
+            LinearLayout buttonEnviarArquivo = customLayout.findViewById(R.id.button_enviar_arquivo);
+            buttonEnviarArquivo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    openGalleryFiles();
+                    alertDialog.dismiss();
+                }
+            });
+
+            LinearLayout buttonEnviarAudio = customLayout.findViewById(R.id.button_enviar_audio);
+            buttonEnviarAudio.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    openGalleryAudio();
+                    alertDialog.dismiss();
+                }
+            });
+
+            alertDialog = builder.create();
+            alertDialog.show();
+        }
+
 
     //===============================================================< Abrir Galeria Imagens>=================================================================================//
 
@@ -233,11 +217,10 @@ public class MainActivity extends AppCompatActivity {
 
     //===================================================================< Convert BASE64 >=================================================================================//
 
-    private String convertFileToBase64(Uri fileUri) throws IOException {
+    private byte[] convertFileToByteArray(Uri fileUri) throws IOException {
         InputStream inputStream = getContentResolver().openInputStream(fileUri);
         byte[] fileBytes = IOUtils.toByteArray(inputStream);
-        String base64File = Base64.encodeToString(fileBytes, Base64.DEFAULT);
-        return base64File;
+        return fileBytes;
     }
 
     //========================================================================< OnStop >=================================================================================//
@@ -255,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                RelativeLayout layoutParent = findViewById(R.id.message_space);
+                LinearLayout layoutParent = findViewById(R.id.message_space);
                 View layoutChild = getLayoutInflater().inflate(R.layout.inflate_other_msg, null);
                 TextView textViewMessage = layoutChild.findViewById(R.id.txt_message);
                 textViewMessage.setText(message);
@@ -267,15 +250,29 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void showReceiveImage(Uri UriImagem) {
+    public void showReceiveImage(Bitmap bitmap) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                RelativeLayout layoutParent = findViewById(R.id.message_space);
+                LinearLayout layoutParent = findViewById(R.id.message_space);
                 View layoutChild = getLayoutInflater().inflate(R.layout.inflate_img_own, null);
-                ImageView imageView = layoutChild.findViewById(R.id.img_inflate_other);
-                imageView.setImageURI(UriImagem);
+                ImageView imageView = layoutChild.findViewById(R.id.img_inflate_own);
+                imageView.setImageBitmap(bitmap);
                 layoutParent.addView(layoutChild);
+            }
+        });
+    }
+
+    public void reloadServerStatus(String status){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                toolbarIndividualChat.setTitle(status);
+                if (status.equals("Online")) {
+                    toolbarIndividualChat.setTitleTextColor(0xFF1BF403);
+                } else {
+                    toolbarIndividualChat.setTitleTextColor(0xFFF4030B);
+                }
             }
         });
     }

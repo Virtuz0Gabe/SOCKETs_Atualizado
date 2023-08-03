@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <!-- Toolbar com o nome do contato -->
@@ -10,7 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/gray"
-        android:titleTextColor="@android:color/white" />
+        android:titleTextColor="@android:color/white"
+        app:title="Offline"
+        app:titleTextColor="@color/vermelho"
+        />
 
     <!-- Linha cinza -->
     <View
@@ -24,18 +28,18 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@drawable/degrade"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        >
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/message_space"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <!-- Mensagens adicionadas dinamicamente aqui -->
 
-            <!-- FrameLayout para o modal -->
-
-        </RelativeLayout>
+        </LinearLayout>
 
     </ScrollView>
 

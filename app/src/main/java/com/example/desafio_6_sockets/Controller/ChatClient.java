@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -36,18 +37,25 @@ public class ChatClient extends Thread {
 
     @Override
     public void run() {
-        try {
-            this.clientSocket = new Socket(SERVER_IP, SERVER_PORT);
-
-            // Para enviar mensgagens para o servidor
-            this.out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
-
-            // Receber resposta do servidor
-            this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
-            receiveMessageLoop(clientSocket);
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        boolean conected = false;
+        while (!conected) {
+            try {
+                this.clientSocket = new Socket(SERVER_IP, SERVER_PORT);
+                // Para enviar mensgagens para o servidor
+                this.out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
+                // Receber resposta do servidor
+                this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
+                receiveMessageLoop(clientSocket);
+                mainActivity.reloadServerStatus("Online");
+                conected = true;
+            } catch (IOException e) {
+                mainActivity.reloadServerStatus("Offline");
+                e.printStackTrace();
+            } try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -59,21 +67,9 @@ public class ChatClient extends Thread {
             public void run() {
                 while (true){
                     try {
+
                         String serverResponse = in.readLine();
-                        if (serverResponse.startsWith("image")) {
-                            String codeFile = "";
-
-                            while (!serverResponse.endsWith("END_OF_IMAGE")){
-                                serverResponse = in.readLine();
-                                codeFile += serverResponse + "\n";
-                            }
-                            Uri decodedFile = decodeBase64ToUri(codeFile);
-                            Log.i(TAG, "codificando a imagem: " + decodedFile);
-
-                            mainActivity.showReceiveImage(decodedFile);
-                        } else {
-                            mainActivity.showReceiveMessage(serverResponse);
-                        }
+                        mainActivity.showReceiveMessage(serverResponse);
 
                     } catch (IOException e){
                         throw new RuntimeException(e);
@@ -105,14 +101,17 @@ public class ChatClient extends Thread {
 
     //=======================================================================< Enviar Imagem >=================================================================================//
 
-    public void sendImage(String base64Image){
+    public void sendImage(byte[] fileData){
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    out.write("image " + base64Image + " END_OF_IMAGE");
+                    OutputStream outputStream = clientSocket.getOutputStream();
+                    outputStream.write(fileData);
+                    outputStream.flush();
+                    /*out.write(fileData);
                     out.newLine();
-                    out.flush();
+                    out.flush();*/
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -171,19 +170,20 @@ public class ChatClient extends Thread {
 
     public Uri decodeBase64ToUri (String fileBase64) {
 
+        Log.w(TAG, "Imagem em base 64: " + fileBase64);
         String type = "";
-        if (fileBase64.startsWith("image")) {
+        //if (fileBase64.startsWith("image")) {
             type = "image";
             fileBase64 = fileBase64.replace("image ", "");
-            fileBase64 = fileBase64.replace("END_OF_IMAGE", "");
-        }
+            fileBase64 = fileBase64.replace(" END_OF_IMAGE", "");
+        //}
 
-        Log.i(TAG, "oi: " + fileBase64);
+        //Log.i(TAG, "oi: " + fileBase64);
 
+        String fullImage = "data:image/jpg;base64," + fileBase64;
 
-        String fullImage = "data:image/png;base64," + fileBase64;
         Uri imageUri = Uri.parse(fullImage);
-        Log.i(TAG, "return: " + imageUri);
+        //Log.e(TAG, "return: " + imageUri);
 
         return imageUri;
     }
